@@ -51,9 +51,7 @@ jobs:
         run: |
           SLUG="${{ steps.gen.outputs.slug }}"
           RAW="https://raw.githubusercontent.com/${{ github.repository }}/${{ github.ref_name }}/out/Reel_${SLUG}.mp4"
-          curl -s -X POST \
-            -H "X-Title: Reel pret a poster" \
-            -H "X-Message: $(cat caption.txt)" \
+          curl -s -X POST --data-binary @caption.txt \
             -H "X-Attach: ${RAW}" \
             -H "X-Filename: Reel_${SLUG}.mp4" \
             -H "X-Click: ${RAW}" \
