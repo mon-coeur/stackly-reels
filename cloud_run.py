@@ -4,6 +4,11 @@
 # ecrit caption.txt (description + hashtags en 1 paragraphe), met a jour state/used.json.
 # Le workflow commit le mp4 + l'etat, puis pousse la notif ntfy (video + caption) sur le tel.
 import os, sys, json, shutil
+import datetime
+try:
+    from zoneinfo import ZoneInfo
+except Exception:
+    ZoneInfo=None
 HERE=os.path.dirname(os.path.abspath(__file__))
 os.environ.setdefault("REEL_ASSETS", os.path.join(HERE,"assets"))
 from daily import POOL          # meme POOL que le moteur local (source unique)
@@ -26,6 +31,11 @@ def emit(k,v):
     if gh: open(gh,"a").write(f"{k}={v}\n")
 
 def main():
+    # Garde-fou horaire : ne generer qu a 3h heure de Paris (cron UTC double).
+    if os.environ.get("GITHUB_EVENT_NAME")=="schedule" and ZoneInfo is not None:
+        h=datetime.datetime.now(ZoneInfo("Europe/Paris")).hour
+        if h!=3:
+            print(f"Pas 3h a Paris (il est {h}h) -> skip"); emit("slug",""); return 0
     u=used(); v=pick(u)
     if v is None:
         print("POOL_EXHAUSTED - ajouter des variantes au POOL"); emit("slug",""); return 0
