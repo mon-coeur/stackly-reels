@@ -1,7 +1,9 @@
 name: stackly-daily-reel
 on:
   schedule:
-    - cron: "0 4 * * *"          # ~06:00 Europe/Paris (CEST). Hiver: ~05:00 (GitHub = UTC, pas de DST).
+    - cron: "0 1 * * *"          # 03:00 Paris en ETE (CEST = UTC+2)
+    - cron: "0 2 * * *"          # 03:00 Paris en HIVER (CET = UTC+1)
+    # Les deux se declenchent; cloud_run.py ne genere QUE si il est 3h a Paris.
   workflow_dispatch: {}           # bouton "Run workflow" pour tester a la demande
 permissions:
   contents: write
@@ -44,9 +46,11 @@ jobs:
         run: |
           SLUG="${{ steps.gen.outputs.slug }}"
           RAW="https://raw.githubusercontent.com/${{ github.repository }}/${{ github.ref_name }}/out/Reel_${SLUG}.mp4"
-          curl -s \
+          curl -s -X POST \
             -H "X-Title: Reel pret a poster" \
             -H "X-Message: $(cat caption.txt)" \
             -H "X-Attach: ${RAW}" \
             -H "X-Filename: Reel_${SLUG}.mp4" \
+            -H "X-Click: ${RAW}" \
+            -H "X-Actions: view, Telecharger la video, ${RAW}, clear=true" \
             "https://ntfy.sh/${{ secrets.NTFY_TOPIC }}"
