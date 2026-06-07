@@ -43,7 +43,7 @@ def main():
     render(slug, v["scenes"], v["total"])
     shutil.copyfile(os.path.join(OUT, slug+".mp4"), os.path.join(OUTDIR,"Reel_"+slug+".mp4"))
     nom,desc,tags=v["cap"]
-    open(os.path.join(HERE,"caption.txt"),"w",encoding="utf-8").write(f"{desc} {tags}")
+    open(os.path.join(HERE,"caption.txt"),"w",encoding="utf-8").write(desc+"\n\n"+tags)
     u.append(slug); save(u); emit("slug",slug)
     print("GENERATED", slug)
     return 0
